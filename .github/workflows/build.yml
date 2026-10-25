@@ -22,13 +22,24 @@ jobs:
       run: |
         git clone --depth 1 https://gitlab.com/CalcProgrammer1/OpenRGB.git openrgb_src
 
-    - name: Injetar suporte do Redragon M719
+    - name: Injetar suporte do Redragon M719 na pasta correta de Controladores
       shell: pwsh
       run: |
+        # Criar a pasta de destino correta dentro de Controllers do OpenRGB
+        $targetDir = "openrgb_src\Controllers\RedragonM719Controller"
+        New-Item -ItemType Directory -Force -Path $targetDir
+
+        # Copiar os ficheiros do M719 do repositório pessoal para o local correto de compilação
         if (Test-Path "personal_repo\include\m719") {
-          New-Item -ItemType Directory -Force -Path "openrgb_src\include\m719"
-          Copy-Item -Recurse -Force "personal_repo\include\m719\*" "openrgb_src\include\m719\"
+          Copy-Item -Recurse -Force "personal_repo\include\m719\*" "$targetDir\"
+        } elseif (Test-Path "personal_repo\Controllers\RedragonM719Controller") {
+          Copy-Item -Recurse -Force "personal_repo\Controllers\RedragonM719Controller\*" "$targetDir\"
         }
+
+        # Adicionar o novo controlador ao ficheiro OpenRGB.pro para que o qmake o compile
+        Add-Content -Path "openrgb_src\OpenRGB.pro" -Value "INCLUDEPATH += Controllers/RedragonM719Controller"
+        Add-Content -Path "openrgb_src\OpenRGB.pro" -Value "HEADERS += Controllers/RedragonM719Controller/*.h"
+        Add-Content -Path "openrgb_src\OpenRGB.pro" -Value "SOURCES += Controllers/RedragonM719Controller/*.cpp"
 
     - name: Configurar ambiente MSVC
       uses: ilammy/msvc-dev-cmd@v1
@@ -50,22 +61,10 @@ jobs:
     - name: Preparar e Empacotar Dependências (Qt6 e libusb)
       shell: pwsh
       run: |
-        # Criar pasta de distribuição limpa
         mkdir dist
         Copy-Item "openrgb_src\release\OpenRGB.exe" "dist\"
-
-        # Rodar o windeployqt do Qt6 para recolher todas as DLLs e plugins necessários automaticamente
         windeployqt --qmldir openrgb_src "dist\OpenRGB.exe"
-
-        # Baixar a libusb-1.0.dll oficial para o Windows para garantir funcionamento USB
-        $libusbUrl = "https://github.com/libusb/libusb/releases/download/v1.0.26/libusb-1.0.26.7z"
-        # Alternativa direta: copiar se houver no sistema ou descarregar binário precompiled do libusb
-        # Como o windeployqt traz o ecossistema Qt6, vamos garantir a libusb baixando uma versão conhecida:
         Invoke-WebRequest -Uri "https://github.com/openrgb-org/OpenRGB-Dependency-Binaries/raw/master/libusb-1.0.dll" -OutFile "dist\libusb-1.0.dll" -ErrorAction SilentlyContinue
-        if (!(Test-Path "dist\libusb-1.0.dll")) {
-            # Fallback caso o link direto precise de outra fonte
-            Write-Host "Aviso: descarregue a libusb-1.0.dll manualmente se necessário, mas o Qt6 está pronto."
-        }
 
     - name: Guardar Executável Completo (Artifact)
       uses: actions/upload-artifact@v4
