@@ -1,33 +1,38 @@
-name: Compilazione OpenRGB Redragon M719
+name: Compilação OpenRGB Redragon M719
 
 on:
   push:
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   build-windows:
     runs-on: windows-latest
 
     steps:
-    - name: Checkout del repository personale (con i file M719)
+    - name: Checkout do repositório pessoal
       uses: actions/checkout@v4
 
-    - name: Clonare il codice sorgente ufficiale di OpenRGB
+    - name: Clonar o código oficial do OpenRGB
       run: |
-        git clone --recursive https://github.com/OpenRGBOrg/OpenRGB.git openrgb_src
-        xcopy /s /e /y include\m719 openrgb_src\include\m719\
+        git clone --depth 1 https://github.com/OpenRGBOrg/OpenRGB.git openrgb_src
+        if exist include\m719 (
+          xcopy /s /e /y include\m719 openrgb_src\include\m719\
+        )
 
-    - name: Configurare ambiente MSVC
+    - name: Configurar ambiente MSVC
       uses: ilammy/msvc-dev-cmd@v1
 
-    - name: Configurare Qt
+    - name: Configurar Qt
       uses: jurplel/install-qt-action@v3
       with:
         version: '5.15.2'
         target: 'desktop'
         arch: 'win64_msvc2019_64'
 
-    - name: Compilare OpenRGB
+    - name: Compilar OpenRGB
       working-directory: openrgb_src
       run: |
         qmake OpenRGB.pro
