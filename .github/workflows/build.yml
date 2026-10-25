@@ -17,16 +17,12 @@ jobs:
       with:
         path: personal_repo
 
-    - name: Baixar código oficial do OpenRGB via API do GitHub
-      shell: pwsh
-      run: |
-        $apiUrl = "https://api.github.com/repos/OpenRGBOrg/OpenRGB/tarball"
-        $headers = @{ "User-Agent" = "GitHub-Actions-Script"; "Authorization" = "token ${{ secrets.GITHUB_TOKEN }}" }
-        Invoke-WebRequest -Uri $apiUrl -Headers $headers -OutFile "openrgb.tar.gz"
-        
-        # Extrair o tar.gz (o PowerShell no Windows 10/11 moderno suporta tar nativamente)
-        mkdir openrgb_src
-        tar -xzf openrgb.tar.gz -C openrgb_src --strip-components=1
+    - name: Checkout do OpenRGB Oficial
+      uses: actions/checkout@v4
+      with:
+        repository: OpenRGBOrg/OpenRGB
+        ref: master
+        path: openrgb_src
 
     - name: Injetar suporte do Redragon M719
       shell: pwsh
