@@ -20,11 +20,11 @@ jobs:
     - name: Baixar e extrair OpenRGB via PowerShell (Sem Git)
       shell: pwsh
       run: |
-        $url = "https://github.com/OpenRGBOrg/OpenRGB/archive/refs/heads/master.zip"
+        $url = "https://github.com/OpenRGBOrg/OpenRGB/archive/refs/heads/main.zip"
         $output = "openrgb.zip"
         Invoke-WebRequest -Uri $url -OutFile $output
         Expand-Archive -Path $output -DestinationPath "."
-        Rename-Item -Path "OpenRGB-master" -NewName "openrgb_src"
+        Rename-Item -Path "OpenRGB-main" -NewName "openrgb_src"
 
     - name: Injetar suporte do Redragon M719
       shell: pwsh
