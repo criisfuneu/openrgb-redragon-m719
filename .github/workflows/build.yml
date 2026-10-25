@@ -25,23 +25,15 @@ jobs:
     - name: Injetar suporte do Redragon M719 corretamente
       shell: pwsh
       run: |
-        # Criar pasta para o controlador M719 dentro dos controladores do OpenRGB
         $targetDir = "openrgb_src\Controllers\RedragonM719Controller"
         New-Item -ItemType Directory -Force -Path $targetDir
-
-        # Copiar todos os ficheiros da pasta include/m719 para o destino
         Copy-Item -Recurse -Force "personal_repo\include\m719\*" "$targetDir\"
 
-        # Listar os ficheiros copiados para garantir que foram encontrados
-        Write-Host "Ficheiros copiados para o controlador:"
-        Get-ChildItem -Path $targetDir
-
-        # Injetar as linhas de forma limpa no OpenRGB.pro apontando para a pasta criada
+        # Injetar as linhas no OpenRGB.pro
         Add-Content -Path "openrgb_src\OpenRGB.pro" -Value ""
         Add-Content -Path "openrgb_src\OpenRGB.pro" -Value "# Redragon M719 Custom Controller"
         Add-Content -Path "openrgb_src\OpenRGB.pro" -Value "INCLUDEPATH += Controllers/RedragonM719Controller"
         
-        # Adicionar explicitamente cada ficheiro .h e .cpp encontrado para evitar falhas de wildcards
         $headers = Get-ChildItem -Path $targetDir -Filter "*.h"
         foreach ($h in $headers) {
             Add-Content -Path "openrgb_src\OpenRGB.pro" -Value "HEADERS += Controllers/RedragonM719Controller/$($h.Name)"
@@ -55,10 +47,10 @@ jobs:
     - name: Configurar ambiente MSVC
       uses: ilammy/msvc-dev-cmd@v1
 
-    - name: Configurar Qt (Qt6)
+    - name: Configurar Qt (Atualizado para Qt 6.6.3 para evitar erro do stdext)
       uses: jurplel/install-qt-action@v3
       with:
-        version: '6.5.3'
+        version: '6.6.3'
         target: 'desktop'
         arch: 'win64_msvc2019_64'
 
