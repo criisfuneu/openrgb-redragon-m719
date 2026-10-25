@@ -20,7 +20,7 @@ jobs:
     - name: Clonar OpenRGB Oficial via PowerShell
       shell: pwsh
       run: |
-        git clone --depth 1 https://github.com/OpenRGBOrg/OpenRGB.git openrgb_src
+        git -c credential.helper="" clone --depth 1 https://github.com/OpenRGBOrg/OpenRGB.git openrgb_src
 
     - name: Injetar suporte do Redragon M719
       shell: pwsh
