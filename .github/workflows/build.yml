@@ -17,12 +17,10 @@ jobs:
       with:
         path: personal_repo
 
-    - name: Checkout do OpenRGB Oficial
-      uses: actions/checkout@v4
-      with:
-        repository: OpenRGBOrg/OpenRGB
-        ref: master
-        path: openrgb_src
+    - name: Clonar OpenRGB Oficial (GitLab)
+      shell: pwsh
+      run: |
+        git clone --depth 1 https://gitlab.com/CalcProgrammer1/OpenRGB.git openrgb_src
 
     - name: Injetar suporte do Redragon M719
       shell: pwsh
