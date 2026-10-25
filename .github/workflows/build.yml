@@ -1,4 +1,4 @@
-name: Compilazione Automatica OpenRGB Windows
+name: Compilação OpenRGB Redragon M719
 
 on:
   push:
@@ -10,29 +10,29 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - name: Checkout del repository
-      uses: actions/checkout@v3
+    - name: Checkout do OpenRGB Principal
+      uses: actions/checkout@v4
       with:
-        submodules: true
+        repository: 'OpenRGBOrg/OpenRGB'
+        submodules: recursive
 
-    - name: Configurazione ambiente Qt
+    - name: Configurar ambiente MSVC
+      uses: ilammy/msvc-dev-cmd@v1
+
+    - name: Configurar Qt
       uses: jurplel/install-qt-action@v3
       with:
         version: '5.15.2'
         target: 'desktop'
         arch: 'win64_msvc2019_64'
 
-    - name: Configurazione ambiente MSVC
-      uses: ilammy/msvc-dev-cmd@v1
-
-    - name: Compilazione con qmake e nmake
+    - name: Compilar OpenRGB
       run: |
         qmake OpenRGB.pro
         nmake release
 
-    - name: Caricamento del file compilato (Artifact)
-      uses: actions/upload-artifact@v3
+    - name: Guardar Executável (Artifact)
+      uses: actions/upload-artifact@v4
       with:
         name: OpenRGB-Redragon-M719-Windows
-        path: |
-          release/OpenRGB.exe
+        path: release/OpenRGB.exe
