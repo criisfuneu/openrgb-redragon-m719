@@ -17,8 +17,10 @@ jobs:
 
     - name: Clonar o código oficial do OpenRGB e injetar M719
       shell: pwsh
+      env:
+        GIT_TERMINAL_PROMPT: 0
       run: |
-        git -c credential.helper="" clone --depth 1 https://github.com/OpenRGBOrg/OpenRGB.git openrgb_src
+        git clone --depth 1 https://github.com/OpenRGBOrg/OpenRGB.git openrgb_src
         if (Test-Path "include\m719") {
           New-Item -ItemType Directory -Force -Path "openrgb_src\include\m719"
           Copy-Item -Recurse -Force "include\m719\*" "openrgb_src\include\m719\"
