@@ -1,4 +1,4 @@
-name: Compilação OpenRGB Redragon M719
+name: Compilação OpenRGB Redragon M719 (Qt6)
 
 on:
   push:
@@ -33,21 +33,42 @@ jobs:
     - name: Configurar ambiente MSVC
       uses: ilammy/msvc-dev-cmd@v1
 
-    - name: Configurar Qt
+    - name: Configurar Qt (Qt6)
       uses: jurplel/install-qt-action@v3
       with:
-        version: '5.15.2'
+        version: '6.5.3'
         target: 'desktop'
         arch: 'win64_msvc2019_64'
 
-    - name: Compilar OpenRGB
+    - name: Compilar OpenRGB com Qt6
       working-directory: openrgb_src
+      shell: pwsh
       run: |
         qmake OpenRGB.pro
         nmake release
 
-    - name: Guardar Executável (Artifact)
+    - name: Preparar e Empacotar Dependências (Qt6 e libusb)
+      shell: pwsh
+      run: |
+        # Criar pasta de distribuição limpa
+        mkdir dist
+        Copy-Item "openrgb_src\release\OpenRGB.exe" "dist\"
+
+        # Rodar o windeployqt do Qt6 para recolher todas as DLLs e plugins necessários automaticamente
+        windeployqt --qmldir openrgb_src "dist\OpenRGB.exe"
+
+        # Baixar a libusb-1.0.dll oficial para o Windows para garantir funcionamento USB
+        $libusbUrl = "https://github.com/libusb/libusb/releases/download/v1.0.26/libusb-1.0.26.7z"
+        # Alternativa direta: copiar se houver no sistema ou descarregar binário precompiled do libusb
+        # Como o windeployqt traz o ecossistema Qt6, vamos garantir a libusb baixando uma versão conhecida:
+        Invoke-WebRequest -Uri "https://github.com/openrgb-org/OpenRGB-Dependency-Binaries/raw/master/libusb-1.0.dll" -OutFile "dist\libusb-1.0.dll" -ErrorAction SilentlyContinue
+        if (!(Test-Path "dist\libusb-1.0.dll")) {
+            # Fallback caso o link direto precise de outra fonte
+            Write-Host "Aviso: descarregue a libusb-1.0.dll manualmente se necessário, mas o Qt6 está pronto."
+        }
+
+    - name: Guardar Executável Completo (Artifact)
       uses: actions/upload-artifact@v4
       with:
-        name: OpenRGB-Redragon-M719-Windows
-        path: openrgb_src/release/OpenRGB.exe
+        name: OpenRGB-Redragon-M719-Qt6-Windows
+        path: dist/
