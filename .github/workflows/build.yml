@@ -12,17 +12,24 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - name: Checkout do repositório pessoal
+    - name: Checkout do repositório pessoal (com os ficheiros M719)
       uses: actions/checkout@v4
+      with:
+        path: personal_repo
 
-    - name: Clonar o código oficial do OpenRGB e injetar M719
+    - name: Checkout do OpenRGB Oficial
+      uses: actions/checkout@v4
+      with:
+        repository: 'OpenRGBOrg/OpenRGB'
+        submodules: recursive
+        path: openrgb_src
+
+    - name: Injetar suporte do Redragon M719
       shell: pwsh
       run: |
-        git config --global --unset credential.helper
-        git clone --depth 1 https://github.com/OpenRGBOrg/OpenRGB.git openrgb_src
-        if (Test-Path "include\m719") {
+        if (Test-Path "personal_repo\include\m719") {
           New-Item -ItemType Directory -Force -Path "openrgb_src\include\m719"
-          Copy-Item -Recurse -Force "include\m719\*" "openrgb_src\include\m719\"
+          Copy-Item -Recurse -Force "personal_repo\include\m719\*" "openrgb_src\include\m719\"
         }
 
     - name: Configurar ambiente MSVC
