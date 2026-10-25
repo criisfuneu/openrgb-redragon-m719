@@ -17,10 +17,14 @@ jobs:
       with:
         path: personal_repo
 
-    - name: Clonar OpenRGB Oficial via PowerShell
+    - name: Baixar e extrair OpenRGB via PowerShell (Sem Git)
       shell: pwsh
       run: |
-        git -c credential.helper="" clone --depth 1 https://github.com/OpenRGBOrg/OpenRGB.git openrgb_src
+        $url = "https://github.com/OpenRGBOrg/OpenRGB/archive/refs/heads/master.zip"
+        $output = "openrgb.zip"
+        Invoke-WebRequest -Uri $url -OutFile $output
+        Expand-Archive -Path $output -DestinationPath "."
+        Rename-Item -Path "OpenRGB-master" -NewName "openrgb_src"
 
     - name: Injetar suporte do Redragon M719
       shell: pwsh
