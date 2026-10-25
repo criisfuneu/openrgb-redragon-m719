@@ -67,7 +67,17 @@ jobs:
         mkdir dist
         Copy-Item "openrgb_src\release\OpenRGB.exe" "dist\"
         windeployqt --qmldir openrgb_src "dist\OpenRGB.exe"
-        Invoke-WebRequest -Uri "https://github.com/openrgb-org/OpenRGB-Dependency-Binaries/raw/master/libusb-1.0.dll" -OutFile "dist\libusb-1.0.dll" -ErrorAction SilentlyContinue
+
+        # Procurar e copiar a libusb-1.0.dll diretamente dos binários do OpenRGB clonado, se existir
+        $foundLibusb = Get-ChildItem -Path "openrgb_src" -Recurse -Filter "libusb-1.0.dll" | Select-Object -First 1
+        if ($foundLibusb) {
+            Copy-Item $foundLibusb.FullName "dist\"
+            Write-Host "libusb-1.0.dll encontrada e copiada com sucesso!"
+        } else {
+            # Fallback: descarregar de um link direto raw e válido
+            $dllUrl = "https://raw.githubusercontent.com/OpenRGBOrg/OpenRGB-Dependency-Binaries/master/Windows/x64/libusb-1.0.dll"
+            Invoke-WebRequest -Uri $dllUrl -OutFile "dist\libusb-1.0.dll"
+        }
 
     - name: Guardar Executável Completo (Artifact)
       uses: actions/upload-artifact@v4
