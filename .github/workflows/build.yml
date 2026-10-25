@@ -17,13 +17,12 @@ jobs:
       with:
         path: personal_repo
 
-    - name: Clonar OpenRGB Oficial de forma limpa
+    - name: Clonar OpenRGB Oficial com token de acesso
       shell: pwsh
       env:
-        GIT_TERMINAL_PROMPT: 0
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        git config --global credential.helper ""
-        git clone --depth 1 https://github.com/OpenRGBOrg/OpenRGB.git openrgb_src
+        git clone --depth 1 https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/OpenRGBOrg/OpenRGB.git openrgb_src
 
     - name: Injetar suporte do Redragon M719
       shell: pwsh
