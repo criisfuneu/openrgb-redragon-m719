@@ -59,7 +59,7 @@ jobs:
       shell: pwsh
       run: |
         qmake OpenRGB.pro
-        nmake release
+        nmake -f Makefile.Release
 
     - name: Preparar e Empacotar Dependências (Qt6 e libusb)
       shell: pwsh
