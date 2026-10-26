@@ -20,6 +20,8 @@
 #ifndef MOUSE_M719
 #define MOUSE_M719
 
+#include "precompiled_header.h"
+#include "mouse_m719.h"
 #include <libusb.h>
 #include <map>
 #include <array>
