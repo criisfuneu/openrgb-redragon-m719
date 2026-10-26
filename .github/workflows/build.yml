@@ -29,12 +29,15 @@ jobs:
         New-Item -ItemType Directory -Force -Path $targetDir
         Copy-Item -Recurse -Force "personal_repo\include\m719\*" "$targetDir\"
 
-        # Adicionar o path e os arquivos no OpenRGB.pro de forma segura
+        # Injetar as linhas no OpenRGB.pro ignorando o precompiled header para este diretório
         $proPath = "openrgb_src\OpenRGB.pro"
         Add-Content -Path $proPath -Value ""
         Add-Content -Path $proPath -Value "# Redragon M719 Custom Controller"
         Add-Content -Path $proPath -Value "INCLUDEPATH += Controllers/RedragonM719Controller"
         
+        # Desativa o uso do PCH global para evitar erro do cl.exe no MSVC
+        Add-Content -Path $proPath -Value "precompile_header:!macx: CONFIG -= precompile_header"
+
         $headers = Get-ChildItem -Path $targetDir -Filter "*.h"
         foreach ($h in $headers) {
             Add-Content -Path $proPath -Value "HEADERS += Controllers/RedragonM719Controller/$($h.Name)"
@@ -44,6 +47,7 @@ jobs:
         foreach ($s in $sources) {
             Add-Content -Path $proPath -Value "SOURCES += Controllers/RedragonM719Controller/$($s.Name)"
         }
+        
     - name: Configurar ambiente MSVC
       uses: ilammy/msvc-dev-cmd@v1
 
