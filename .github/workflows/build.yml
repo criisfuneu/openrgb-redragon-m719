@@ -29,21 +29,21 @@ jobs:
         New-Item -ItemType Directory -Force -Path $targetDir
         Copy-Item -Recurse -Force "personal_repo\include\m719\*" "$targetDir\"
 
-        # Injetar as linhas no OpenRGB.pro
-        Add-Content -Path "openrgb_src\OpenRGB.pro" -Value ""
-        Add-Content -Path "openrgb_src\OpenRGB.pro" -Value "# Redragon M719 Custom Controller"
-        Add-Content -Path "openrgb_src\OpenRGB.pro" -Value "INCLUDEPATH += Controllers/RedragonM719Controller"
+        # Adicionar o path e os arquivos no OpenRGB.pro de forma segura
+        $proPath = "openrgb_src\OpenRGB.pro"
+        Add-Content -Path $proPath -Value ""
+        Add-Content -Path $proPath -Value "# Redragon M719 Custom Controller"
+        Add-Content -Path $proPath -Value "INCLUDEPATH += Controllers/RedragonM719Controller"
         
         $headers = Get-ChildItem -Path $targetDir -Filter "*.h"
         foreach ($h in $headers) {
-            Add-Content -Path "openrgb_src\OpenRGB.pro" -Value "HEADERS += Controllers/RedragonM719Controller/$($h.Name)"
+            Add-Content -Path $proPath -Value "HEADERS += Controllers/RedragonM719Controller/$($h.Name)"
         }
 
         $sources = Get-ChildItem -Path $targetDir -Filter "*.cpp"
         foreach ($s in $sources) {
-            Add-Content -Path "openrgb_src\OpenRGB.pro" -Value "SOURCES += Controllers/RedragonM719Controller/$($s.Name)"
+            Add-Content -Path $proPath -Value "SOURCES += Controllers/RedragonM719Controller/$($s.Name)"
         }
-
     - name: Configurar ambiente MSVC
       uses: ilammy/msvc-dev-cmd@v1
 
